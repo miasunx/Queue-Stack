@@ -1,4 +1,2 @@
 # RFM Customer Segmentation
-#Recency
-#Frequency
-#Monetary
+#RFM: Recency, Frequency, Monetary
