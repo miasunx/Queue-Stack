@@ -1,0 +1,52 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import datetime as dt
+
+import warnings
+warnings.filterwarnings('ignore')
+
+data = pd.read_excel('./datasets/Online_Retail.xlsx')
+
+data = data[pd.notnull(data['CustomerID'])]
+
+filtered_data = data[['Country','CustomerID']].drop_duplicates()
+
+# Segmentation analysis of customers in the UK
+uk_data = data[data.Country=='United Kingdom']
+
+# Descriptive statistical analysis
+print(uk_data.describe().T)
+
+# Data Cleaning
+uk_data = uk_data[(uk_data['Quantity']>0)]
+
+
+uk_data=uk_data[['CustomerID','InvoiceDate','InvoiceNo','Quantity','UnitPrice']]
+uk_data['InvoiceDate'] = pd.to_datetime(uk_data['InvoiceDate'])
+
+# Set observation time points
+PRESENT = dt.datetime(2011,12,10)
+
+# RFM analysis
+rfm = uk_data.groupby('CustomerID').agg({'InvoiceDate': lambda date: (PRESENT - date.max()).days,
+                                        'InvoiceNo': lambda num: len(num),
+                                        'TotalPrice': lambda price: price.sum()})
+
+rfm.columns = ['monetary','frequency','recency']
+rfm['recency'] = rfm['recency'].astype(int)
+
+rfm['r_quartile'] = pd.qcut(rfm['recency'], 2, ['1','2'])
+rfm['f_quartile'] = pd.qcut(rfm['frequency'], 2, ['2','1'])
+rfm['m_quartile'] = pd.qcut(rfm['monetary'], 2, ['2','1'])
+
+# RFM score
+rfm['RFM_Score'] = rfm.r_quartile.astype(str)+ rfm.f_quartile.astype(str) + rfm.m_quartile.astype(str)
+print(rfm.head())
+
+# Distribution of customer segmentation
+rfm.reset_index(inplace=True)
+rfm['RFM_Score'].value_counts()
+
+# Visualization
+rfm['RFM_Score'].value_counts().plot(kind='bar')
