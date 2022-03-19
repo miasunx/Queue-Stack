@@ -1,2 +1,3 @@
-# RFM Customer Segmentation
-#RFM: Recency, Frequency, Monetary
+# Mall Customer Segmentation Data From Kaggle
+#Market Basket Analysis
+https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python
